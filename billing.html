@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Billing - VANTAGE 4o</title>
+    <link rel="stylesheet" href="styles/account.css">
+</head>
+<body>
+    <main class="account-page">
+        <div class="account-card">
+            <header class="account-header">
+                <h1>Billing & Plans</h1>
+                <a href="/" class="back-link">Back to chat</a>
+            </header>
+
+            <section class="account-section">
+                <h2>Current plan</h2>
+                <div class="plan-pill" id="planPill">Free</div>
+                <p class="muted" id="planDescription">Your account is on the free plan.</p>
+                <button id="manageBillingBtn" class="secondary" style="display:none;">Manage subscription</button>
+            </section>
+
+            <section class="account-section">
+                <h2>What Pro will include</h2>
+                <ul class="feature-list">
+                    <li>More model usage per day</li>
+                    <li>Priority responses</li>
+                    <li>Higher upload limits</li>
+                </ul>
+            </section>
+
+            <section class="account-section danger">
+                <h2>Session</h2>
+                <button id="logoutBtn" class="secondary">Log out</button>
+            </section>
+        </div>
+    </main>
+
+    <div id="notification" class="notification"></div>
+    <script src="js/account.js"></script>
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pricing - VANTAGE 4o</title>
+    <link rel="stylesheet" href="styles/pricing.css">
+</head>
+<body>
+    <main class="pricing-page">
+        <header class="pricing-header">
+            <a href="/" class="back-link">Back to chat</a>
+            <img class="brand-mark" src="assets/vantage-mark.svg" alt="VANTAGE logo">
+            <h1>VANTAGE Pricing</h1>
+            <p>Choose the plan that fits how you use VANTAGE.</p>
+        </header>
+
+        <section class="pricing-grid" aria-label="Pricing plans">
+            <article class="plan-card" id="freePlanCard">
+                <h2>Free</h2>
+                <p class="plan-subtitle">Great for everyday tasks</p>
+                <p class="price">$0 <span>/ month</span></p>
+                <button type="button" class="plan-button secondary" id="freePlanBtn" disabled>Current plan</button>
+                <ul class="feature-list">
+                    <li>Limited messages each day</li>
+                    <li>Basic file/image uploads</li>
+                    <li>Standard response speed</li>
+                </ul>
+            </article>
+
+            <article class="plan-card featured" id="plusPlanCard">
+                <span class="badge">Most Popular</span>
+                <h2>Plus</h2>
+                <p class="plan-subtitle">More power for regular use</p>
+                <p class="price">$20 <span>/ month</span></p>
+                <button type="button" class="plan-button" id="plusPlanBtn">Upgrade to VANTAGE Plus</button>
+                <ul class="feature-list">
+                    <li>Higher daily usage limits</li>
+                    <li>Priority response queue</li>
+                    <li>Bigger upload limits</li>
+                </ul>
+            </article>
+
+            <article class="plan-card">
+                <h2>Pro</h2>
+                <p class="plan-subtitle">For advanced users and teams</p>
+                <p class="price">$200 <span>/ month</span></p>
+                <button type="button" class="plan-button secondary" disabled>Coming soon</button>
+                <ul class="feature-list">
+                    <li>Everything in Plus</li>
+                    <li>Maximum usage limits</li>
+                    <li>Early access to advanced features</li>
+                </ul>
+            </article>
+        </section>
+
+        <div class="pricing-footer">
+            <a href="billing.html">Manage billing & session</a>
+        </div>
+    </main>
+
+    <div id="notification" class="notification" role="status" aria-live="polite"></div>
+    <script src="js/pricing.js"></script>
+</body>
+</html>

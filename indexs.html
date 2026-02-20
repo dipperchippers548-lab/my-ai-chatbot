@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>VANTAGE 4o | AURA Core</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono&display=swap');
+
+        :root { 
+            --bg: #050506; --sidebar: #0a0a0c; --accent: #d4af37; 
+            --text: #f0f0f0; --border: rgba(255,255,255,0.08); 
+            --surface: #111114; --user-bubble: #16161b;
+            --accent-glow: rgba(212, 175, 55, 0.2);
+            --input-bg: #000;
+            --danger: #ff4b4b;
+            --success: #00ff88;
+        }
+
+        /* Light Mode Overrides */
+        body.light-theme {
+            --bg: #f5f5f7; --sidebar: #ffffff; --text: #1d1d1f;
+            --surface: #ffffff; --user-bubble: #e8e8ed;
+            --border: rgba(0,0,0,0.1); --input-bg: #fff;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; outline: none; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; display: flex; position: relative; transition: background 0.3s, color 0.3s; }
+
+        #neuralCanvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0.4; }
+
+        .hud-stats { position: fixed; top: 20px; right: 20px; display: flex; gap: 15px; z-index: 1000; font-family: 'JetBrains Mono'; font-size: 10px; }
+        .stat-pill { background: rgba(0,0,0,0.6); border: 1px solid var(--border); padding: 5px 12px; border-radius: 50px; display: flex; align-items: center; gap: 8px; backdrop-filter: blur(5px); color: #fff; }
+        .stat-dot { width: 6px; height: 6px; background: var(--success); border-radius: 50%; box-shadow: 0 0 8px var(--success); }
+
+        #authOverlay { position: fixed; inset: 0; background: #000; z-index: 10000; display: flex; align-items: center; justify-content: center; }
+        .auth-card { background: var(--sidebar); padding: 40px; border-radius: 30px; width: 100%; max-width: 450px; border: 1px solid var(--border); text-align: center; position: relative; }
+        .primary-btn { width: 100%; padding: 15px; background: var(--accent); color: black; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; margin-top: 10px; transition: 0.3s; }
+        .primary-btn:hover { opacity: 0.8; transform: scale(0.98); }
+
+        .sidebar { width: 320px; background: var(--sidebar); border-right: 1px solid var(--border); display: flex; flex-direction: column; z-index: 999; }
+        .nav-header { padding: 30px 20px; font-weight: 800; color: var(--accent); letter-spacing: 5px; text-align: center; display: flex; flex-direction: column; align-items: center; }
+        
+        .new-chat-btn { margin: 0 20px 20px; padding: 12px; border: 1px dashed var(--accent); border-radius: 12px; color: var(--accent); cursor: pointer; text-align: center; font-size: 12px; transition: 0.2s; }
+        .new-chat-btn:hover { background: var(--accent-glow); }
+
+        .history-list { flex: 1; overflow-y: auto; padding: 10px; }
+        .history-item { padding: 12px; margin-bottom: 5px; border-radius: 10px; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: 0.2s; position: relative; }
+        .history-item:hover { background: var(--user-bubble); }
+
+        .main-content { flex: 1; display: flex; flex-direction: column; position: relative; z-index: 1; }
+        #chatbox { flex: 1; overflow-y: auto; padding: 80px 10% 200px 10%; scroll-behavior: smooth; }
+        
+        .msg { margin-bottom: 30px; line-height: 1.6; max-width: 85%; animation: fadeIn 0.3s ease; position: relative; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .user-msg { margin-left: auto; background: var(--user-bubble); padding: 15px 20px; border-radius: 20px 20px 0 20px; border: 1px solid var(--border); }
+        .aura-msg { margin-right: auto; padding-left: 10px; border-left: 2px solid var(--accent); }
+
+        .input-area { position: absolute; bottom: 0; width: 100%; padding: 40px; background: linear-gradient(transparent, var(--bg) 40%); }
+        .input-container { max-width: 850px; margin: auto; background: var(--surface); border: 1px solid var(--border); border-radius: 24px; padding: 8px 16px; display: flex; align-items: center; gap: 12px; backdrop-filter: blur(10px); }
+        #userInput { flex: 1; background: none; border: none; color: var(--text); font-size: 16px; padding: 10px 0; }
+
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 10001; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
+        .modal-content { background: var(--sidebar); border: 1px solid var(--border); padding: 30px; border-radius: 24px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
+        
+        .settings-group { margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--border); }
+        .settings-label { font-size: 10px; opacity: 0.5; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; display: block; }
+        
+        input[type="text"], input[type="email"], input[type="password"], select { 
+            width: 100%; background: rgba(0,0,0,0.2); border: 1px solid var(--border); color: var(--text); padding: 12px; border-radius: 10px; margin-top: 5px; 
+        }
+
+        .scan-line { position: fixed; top: -100px; left: 0; width: 100%; height: 100px; background: linear-gradient(to bottom, transparent, var(--accent-glow), transparent); border-bottom: 1px solid var(--accent); opacity: 0; z-index: 10002; pointer-events: none; }
+        .scan-active { animation: scan 2s ease-in-out; }
+        @keyframes scan { 0% { top: -100px; opacity: 0.5; } 100% { top: 100vh; opacity: 0; } }
+
+        /* ========== NEW: Account & Login ========== */
+        .auth-tabs { display: flex; gap: 0; margin-bottom: 24px; border-bottom: 1px solid var(--border); }
+        .auth-tab { flex: 1; padding: 12px; background: none; border: none; color: var(--text); cursor: pointer; opacity: 0.6; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; transition: 0.2s; }
+        .auth-tab.active { opacity: 1; color: var(--accent); border-bottom: 2px solid var(--accent); margin-bottom: -1px; }
+        .auth-form { text-align: left; }
+        .auth-form input { margin-bottom: 12px; }
+        .auth-form .forgot-link { font-size: 11px; opacity: 0.7; cursor: pointer; margin-top: -6px; margin-bottom: 12px; display: block; }
+        .auth-form .forgot-link:hover { color: var(--accent); }
+        .remember-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; font-size: 12px; }
+        .remember-row input { width: auto; margin: 0; }
+
+        /* ========== NEW: Subscription ========== */
+        .sub-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 50px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 8px; }
+        .sub-badge.free { background: rgba(255,255,255,0.1); border: 1px solid var(--border); }
+        .sub-badge.pro { background: var(--accent-glow); border: 1px solid var(--accent); color: var(--accent); }
+        .sub-badge.enterprise { background: linear-gradient(135deg, rgba(212,175,55,0.3), rgba(212,175,55,0.1)); border: 1px solid var(--accent); color: var(--accent); }
+        .plan-card { padding: 16px; border: 1px solid var(--border); border-radius: 12px; margin-bottom: 12px; cursor: pointer; transition: 0.2s; }
+        .plan-card:hover { background: var(--user-bubble); }
+        .plan-card.selected { border-color: var(--accent); background: var(--accent-glow); }
+
+        /* ========== NEW: Chat enhancements ========== */
+        .msg-actions { position: absolute; top: 4px; right: 4px; display: flex; gap: 4px; opacity: 0.5; transition: 0.2s; }
+        .msg:hover .msg-actions { opacity: 1; }
+        .msg-actions i { cursor: pointer; font-size: 11px; padding: 4px; }
+        .msg-actions i:hover { color: var(--accent); }
+        .typing-indicator { display: flex; gap: 4px; padding: 12px; margin-bottom: 20px; }
+        .typing-indicator span { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; animation: typingBounce 0.6s ease-in-out infinite; }
+        .typing-indicator span:nth-child(2) { animation-delay: 0.1s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0.2s; }
+        @keyframes typingBounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+        .msg-content { word-break: break-word; }
+        .msg-content pre { background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; overflow-x: auto; margin: 8px 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+        .msg-content code { background: rgba(0,0,0,0.2); padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+        .msg-content p { margin: 6px 0; }
+
+        /* ========== NEW: File & media, voice ========== */
+        .input-actions { display: flex; align-items: center; gap: 4px; }
+        .input-actions .icon-btn { width: 36px; height: 36px; border-radius: 10px; border: 1px solid var(--border); background: transparent; color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .input-actions .icon-btn:hover { background: var(--user-bubble); color: var(--accent); }
+        .input-actions .icon-btn.recording { background: var(--danger); color: #fff; border-color: var(--danger); animation: pulse 1s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+        .attached-preview { display: flex; align-items: center; gap: 8px; padding: 8px; margin-top: 8px; background: rgba(0,0,0,0.2); border-radius: 8px; font-size: 12px; }
+        .attached-preview img { max-height: 40px; border-radius: 6px; }
+        .attached-preview .remove-attach { cursor: pointer; color: var(--danger); margin-left: auto; }
+
+        /* ========== NEW: Mobile ========== */
+        .sidebar-toggle { display: none; position: fixed; bottom: 80px; left: 20px; z-index: 998; width: 48px; height: 48px; border-radius: 50%; background: var(--accent); color: #000; border: none; cursor: pointer; align-items: center; justify-content: center; box-shadow: 0 4px 12px var(--accent-glow); }
+        @media (max-width: 768px) {
+            .sidebar { position: fixed; left: 0; top: 0; height: 100%; transform: translateX(-100%); transition: transform 0.3s; }
+            .sidebar.open { transform: translateX(0); }
+            .sidebar-toggle { display: flex; }
+            .main-content { margin-left: 0; }
+        }
+
+        /* ========== NEW: Search, export ========== */
+        .chat-search { padding: 8px 12px; margin-bottom: 12px; border: 1px solid var(--border); border-radius: 10px; width: 100%; background: rgba(0,0,0,0.2); color: var(--text); font-size: 13px; }
+        .search-highlight { background: rgba(212, 175, 55, 0.4); border-radius: 2px; }
+    </style>
+</head>
+<body onload="initApp()">
+
+    <canvas id="neuralCanvas"></canvas>
+    <div id="scanEffect" class="scan-line"></div>
+
+    <div class="hud-stats">
+        <div class="stat-pill"><div class="stat-dot"></div> SYNC: 100%</div>
+        <div class="stat-pill"><i class="fas fa-adjust"></i> <span id="themeDisplay">DARK</span></div>
+    </div>
+
+    <!-- ========== ACCOUNT & LOGIN: Auth overlay with Sign In / Sign Up tabs ========== -->
+    <div id="authOverlay">
+        <div class="auth-card">
+            <h1 style="color:var(--accent); letter-spacing:10px;">VANTAGE</h1>
+            <p style="font-size:12px; opacity:0.5; margin-bottom:20px;">NEURAL ACCESS POINT</p>
+            <div class="auth-tabs">
+                <button class="auth-tab active" id="tabSignIn" onclick="switchAuthTab('signin')">Sign In</button>
+                <button class="auth-tab" id="tabSignUp" onclick="switchAuthTab('signup')">Sign Up</button>
+            </div>
+            <!-- Auth API error message (shown when login/register fails) -->
+            <div id="authError" style="display:none; color:var(--danger); font-size:12px; margin-bottom:12px; text-align:left;"></div>
+            <div id="signInForm" class="auth-form">
+                <input type="email" id="loginEmail" placeholder="Email">
+                <input type="password" id="loginPassword" placeholder="Password">
+                <label class="remember-row"><input type="checkbox" id="rememberMe" checked> Remember me</label>
+                <a class="forgot-link" onclick="openModal('forgotModal')">Forgot password?</a>
+                <button class="primary-btn" id="btnSignIn" onclick="handleSignIn()">SIGN IN</button>
+            </div>
+            <div id="signUpForm" class="auth-form" style="display:none;">
+                <input type="text" id="regName" placeholder="Display Name">
+                <input type="email" id="regEmail" placeholder="Email">
+                <input type="password" id="regPassword" placeholder="Password">
+                <button class="primary-btn" id="btnSignUp" onclick="handleSignUp()">CREATE ACCOUNT</button>
+            </div>
+            <p style="font-size:11px; opacity:0.5; margin-top:20px;">Or continue without account:</p>
+            <button class="primary-btn" style="background:#333; margin-top:8px;" onclick="handleAuth()">INITIALIZE LINK (Guest)</button>
+        </div>
+    </div>
+
+    <div class="sidebar">
+        <div class="nav-header">VANTAGE 4o</div>
+        
+        <div class="new-chat-btn" onclick="newChat()"><i class="fas fa-plus"></i> NEW THREAD</div>
+
+        <div class="history-list">
+            <div class="history-item" onclick="openModal('persModal')"><i class="fas fa-brain"></i> Personalization</div>
+            <div class="history-item" onclick="openModal('settingsModal')"><i class="fas fa-cog"></i> Settings</div>
+            <div class="history-item" onclick="openModal('dataModal')"><i class="fas fa-shield-alt"></i> Data & Privacy</div>
+        </div>
+        
+        <div style="padding: 20px; border-top: 1px solid var(--border);">
+            <div class="history-item" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <!-- Chat search (Chat features) -->
+        <div id="chatSearchWrap" style="padding:12px 20px 0; max-width:850px; margin:0 auto; display:none;">
+            <input type="text" class="chat-search" id="chatSearch" placeholder="Search in this chat..." oninput="searchInChat(this.value)">
+        </div>
+        <div id="chatbox">
+            <div id="welcome" style="text-align:center; opacity:0.1; margin-top:20vh;">
+                <h1>VANTAGE</h1>
+                <p>AURA CORE ONLINE</p>
+            </div>
+        </div>
+        <div class="input-area">
+            <!-- Attached file/image preview (File & Media, Image tools) -->
+            <div id="attachedPreview" class="attached-preview" style="display:none; max-width:850px; margin:0 auto 8px;">
+                <img id="attachedThumb" alt="" style="display:none;">
+                <span id="attachedName"></span>
+                <span class="remove-attach" onclick="clearAttachment()"><i class="fas fa-times"></i></span>
+            </div>
+            <div class="input-container">
+                <!-- Voice input (Voice & Mobile) -->
+                <div class="input-actions">
+                    <button type="button" class="icon-btn" id="voiceBtn" onclick="toggleVoiceInput()" title="Voice input"><i class="fas fa-microphone"></i></button>
+                    <button type="button" class="icon-btn" id="attachBtn" onclick="document.getElementById('fileInput').click()" title="Attach file or image"><i class="fas fa-paperclip"></i></button>
+                    <input type="file" id="fileInput" accept="image/*,.pdf,.txt" style="display:none;" onchange="handleFileSelect(event)">
+                </div>
+                <input type="text" id="userInput" placeholder="Signal AURA..." onkeypress="if(event.key === 'Enter' && !event.shiftKey) sendMessage()">
+                <i class="fas fa-paper-plane" style="color:var(--accent); cursor:pointer;" onclick="sendMessage()"></i>
+            </div>
+        </div>
+    </div>
+
+    <div id="settingsModal" class="modal"><div class="modal-content">
+        <h2 style="color:var(--accent); margin-bottom:20px;">SYSTEM SETTINGS</h2>
+        
+        <div class="settings-group">
+            <span class="settings-label">Profile Details</span>
+            <input type="text" id="userName" placeholder="Display Name" value="Lamar">
+            <input type="email" id="userEmail" placeholder="Email Address">
+            <input type="password" id="userPass" placeholder="New Password">
+        </div>
+
+        <div class="settings-group">
+            <span class="settings-label">Appearance</span>
+            <select id="themeSelect" onchange="applyTheme(this.value)">
+                <option value="dark">Dark Mode</option>
+                <option value="light">Light Mode</option>
+                <option value="system">System Default</option>
+            </select>
+            <span class="settings-label" style="margin-top:12px;">Font size</span>
+            <select id="fontSizeSelect">
+                <option value="small">Small</option>
+                <option value="medium" selected>Medium</option>
+                <option value="large">Large</option>
+            </select>
+            <label class="remember-row" style="margin-top:10px;"><input type="checkbox" id="compactView"> Compact chat view</label>
+        </div>
+
+        <div class="settings-group">
+            <span class="settings-label">Interface Language</span>
+            <select id="langSelect">
+                <option value="en">English</option>
+                <option value="es">Español</option>
+                <option value="fr">Français</option>
+                <option value="jp">日本語</option>
+            </select>
+        </div>
+
+        <div class="settings-group">
+            <span class="settings-label">Notifications & Web</span>
+            <label class="remember-row"><input type="checkbox" id="notifEnabled"> Enable notifications</label>
+            <label class="remember-row"><input type="checkbox" id="soundEnabled" checked> Sound on response</label>
+        </div>
+
+        <button class="primary-btn" onclick="saveSettings()">Save Changes</button>
+        <button class="primary-btn" style="background:#333;" onclick="closeModal('settingsModal')">Cancel</button>
+    </div></div>
+
+    <div id="dataModal" class="modal"><div class="modal-content">
+        <h2 style="color:var(--danger);">DATA & PRIVACY</h2>
+        <p style="font-size:12px; opacity:0.6; margin:15px 0;">Manage your conversation history, export data, and privacy options.</p>
+        <div class="settings-group">
+            <span class="settings-label">Data</span>
+            <button class="primary-btn" style="background:#333; width:100%; margin-bottom:8px;" onclick="exportChatData()">Export chat history</button>
+            <button class="primary-btn" style="background:var(--danger); width:100%;" onclick="clearMemory()">Wipe All History</button>
+        </div>
+        <div class="settings-group">
+            <span class="settings-label">Privacy & safety</span>
+            <label class="remember-row"><input type="checkbox" id="contentFilter"> Content filter (hide sensitive)</label>
+            <label class="remember-row"><input type="checkbox" id="analyticsOff"> Disable analytics (demo)</label>
+            <label class="remember-row"><input type="checkbox" id="twoFactor"> Two-factor auth (coming soon)</label>
+        </div>
+        <p style="font-size:11px; opacity:0.5;"><a href="#" style="color:var(--accent);">Privacy policy</a> · <a href="#" style="color:var(--accent);">Terms</a></p>
+        <button class="primary-btn" style="background:#333; margin-top:10px;" onclick="closeModal('dataModal')">Return</button>
+    </div></div>
+
+    <div id="persModal" class="modal"><div class="modal-content">
+        <h2 style="color:var(--accent);">PERSONALIZATION</h2>
+        <div class="settings-group">
+            <span class="settings-label">Custom instructions (how AURA should respond)</span>
+            <textarea id="customInstructions" style="width:100%; height:100px; margin:15px 0; background:rgba(0,0,0,0.2); color:var(--text); border:1px solid var(--border); padding:10px; border-radius:10px;"></textarea>
+        </div>
+        <div class="settings-group">
+            <span class="settings-label">AI personality / style</span>
+            <select id="personalitySelect">
+                <option value="default">Default (helpful, concise)</option>
+                <option value="detailed">Detailed (longer explanations)</option>
+                <option value="brief">Brief (short answers)</option>
+                <option value="creative">Creative (more imaginative)</option>
+            </select>
+        </div>
+        <div class="settings-group">
+            <span class="settings-label">Response length preference</span>
+            <select id="responseLength">
+                <option value="auto">Auto</option>
+                <option value="short">Short</option>
+                <option value="medium">Medium</option>
+                <option value="long">Long</option>
+            </select>
+        </div>
+        <button class="primary-btn" onclick="savePersonalization(); closeModal('persModal');">Apply</button>
+        <button class="primary-btn" style="background:#333;" onclick="closeModal('persModal')">Cancel</button>
+    </div></div>
+
+    <!-- ========== NEW: Subscription modal ========== -->
+    <div id="subModal" class="modal"><div class="modal-content">
+        <h2 style="color:var(--accent);">SUBSCRIPTION</h2>
+        <p style="font-size:12px; opacity:0.7; margin-bottom:20px;">Choose your plan. Current: <strong id="currentPlanLabel">Free</strong></p>
+        <div class="plan-card selected" id="planFree" onclick="selectPlan('free')">
+            <strong>Free</strong> — Basic chat, 20 messages/day
+        </div>
+        <div class="plan-card" id="planPro" onclick="selectPlan('pro')">
+            <strong>Pro</strong> — Unlimited messages, voice, file uploads
+        </div>
+        <div class="plan-card" id="planEnterprise" onclick="selectPlan('enterprise')">
+            <strong>Enterprise</strong> — API, priority support, team features
+        </div>
+        <button class="primary-btn" onclick="applySubscription(); closeModal('subModal');">Apply plan</button>
+        <button class="primary-btn" style="background:#333;" onclick="closeModal('subModal')">Cancel</button>
+    </div></div>
+
+    <!-- ========== NEW: Forgot password modal ========== -->
+    <div id="forgotModal" class="modal"><div class="modal-content">
+        <h2 style="color:var(--accent);">RESET PASSWORD</h2>
+        <p style="font-size:12px; opacity:0.7; margin-bottom:15px;">Enter your email to receive a reset link (demo: stored in localStorage).</p>
+        <input type="email" id="forgotEmail" placeholder="Email">
+        <button class="primary-btn" onclick="handleForgotPassword(); closeModal('forgotModal');">Send reset link</button>
+        <button class="primary-btn" style="background:#333;" onclick="closeModal('forgotModal')">Cancel</button>
+    </div></div>
+
+    <!-- ========== NEW: Keyboard shortcuts modal ========== -->
+    <div id="shortcutsModal" class="modal"><div class="modal-content">
+        <h2 style="color:var(--accent);">KEYBOARD SHORTCUTS</h2>
+        <div class="settings-group">
+            <span class="settings-label">Chat</span>
+            <p style="font-size:13px;"><kbd>Enter</kbd> Send · <kbd>Shift+Enter</kbd> New line</p>
+        </div>
+        <div class="settings-group">
+            <span class="settings-label">Navigation</span>
+            <p style="font-size:13px;"><kbd>Ctrl+K</kbd> / <kbd>Cmd+K</kbd> Search · <kbd>Ctrl+N</kbd> New chat</p>
+        </div>
+        <div class="settings-group">
+            <span class="settings-label">Settings</span>
+            <p style="font-size:13px;"><kbd>Ctrl+,</kbd> Settings · <kbd>Esc</kbd> Close modal</p>
+        </div>
+        <button class="primary-btn" onclick="closeModal('shortcutsModal')">Close</button>
+    </div></div>
+
+<script>
+    let chatHistory = [];
+    // Current user from API (set after login/register or GET /api/auth/me)
+    let currentUser = null;
+
+    function initApp() {
+        initParticles();
+        animateParticles();
+        const savedTheme = localStorage.getItem('vantage_theme') || 'dark';
+        applyTheme(savedTheme);
+        document.getElementById('themeSelect').value = savedTheme;
+        // Check if already logged in (session cookie)
+        checkAuth();
+    }
+
+    // ---------- AUTH: Session check on load ----------
+    async function checkAuth() {
+        try {
+            const res = await fetch('/api/auth/me', { credentials: 'include' });
+            const data = await res.json();
+            if (data.user) {
+                currentUser = data.user;
+                document.getElementById('authOverlay').style.display = 'none';
+                if (document.getElementById('userName')) document.getElementById('userName').value = currentUser.display_name || currentUser.email;
+                if (document.getElementById('userEmail')) document.getElementById('userEmail').value = currentUser.email || '';
+            }
+        } catch (_) { /* offline or server error: keep overlay visible */ }
+    }
+
+    // ---------- AUTH: Switch Sign In / Sign Up tabs ----------
+    function switchAuthTab(tab) {
+        const signInForm = document.getElementById('signInForm');
+        const signUpForm = document.getElementById('signUpForm');
+        const tabSignIn = document.getElementById('tabSignIn');
+        const tabSignUp = document.getElementById('tabSignUp');
+        const authError = document.getElementById('authError');
+        if (authError) { authError.style.display = 'none'; authError.textContent = ''; }
+        if (tab === 'signup') {
+            signInForm.style.display = 'none';
+            signUpForm.style.display = 'block';
+            tabSignIn.classList.remove('active');
+            tabSignUp.classList.add('active');
+        } else {
+            signInForm.style.display = 'block';
+            signUpForm.style.display = 'none';
+            tabSignIn.classList.add('active');
+            tabSignUp.classList.remove('active');
+        }
+    }
+
+    // ---------- AUTH: Show error in auth card ----------
+    function showAuthError(msg) {
+        const el = document.getElementById('authError');
+        if (el) { el.textContent = msg; el.style.display = 'block'; }
+    }
+
+    // ---------- AUTH: Sign In (email + password) ----------
+    async function handleSignIn() {
+        const email = document.getElementById('loginEmail').value.trim();
+        const password = document.getElementById('loginPassword').value;
+        const btn = document.getElementById('btnSignIn');
+        showAuthError('');
+        if (!email || !password) { showAuthError('Please enter email and password.'); return; }
+        btn.disabled = true;
+        btn.textContent = 'Signing in...';
+        try {
+            const res = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password }),
+                credentials: 'include'
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                showAuthError(data.error || 'Sign in failed.');
+                return;
+            }
+            currentUser = data.user;
+            triggerScan();
+            document.getElementById('authOverlay').style.display = 'none';
+            if (document.getElementById('userName')) document.getElementById('userName').value = data.user.display_name || data.user.email;
+            if (document.getElementById('userEmail')) document.getElementById('userEmail').value = data.user.email || '';
+        } catch (e) {
+            showAuthError('Connection error. Try again.');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'SIGN IN';
+        }
+    }
+
+    // ---------- AUTH: Sign Up (register) ----------
+    async function handleSignUp() {
+        const displayName = document.getElementById('regName').value.trim();
+        const email = document.getElementById('regEmail').value.trim();
+        const password = document.getElementById('regPassword').value;
+        const btn = document.getElementById('btnSignUp');
+        showAuthError('');
+        if (!email || !password) { showAuthError('Please enter email and password.'); return; }
+        if (password.length < 8) { showAuthError('Password must be at least 8 characters.'); return; }
+        btn.disabled = true;
+        btn.textContent = 'Creating account...';
+        try {
+            const res = await fetch('/api/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password, displayName: displayName || undefined }),
+                credentials: 'include'
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                showAuthError(data.error || 'Registration failed.');
+                return;
+            }
+            currentUser = data.user;
+            triggerScan();
+            document.getElementById('authOverlay').style.display = 'none';
+            if (document.getElementById('userName')) document.getElementById('userName').value = data.user.display_name || data.user.email;
+            if (document.getElementById('userEmail')) document.getElementById('userEmail').value = data.user.email || '';
+        } catch (e) {
+            showAuthError('Connection error. Try again.');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'CREATE ACCOUNT';
+        }
+    }
+
+    // ---------- AUTH: Forgot password (sends request; demo may return reset token) ----------
+    async function handleForgotPassword() {
+        const email = document.getElementById('forgotEmail').value.trim();
+        if (!email) { alert('Enter your email.'); return; }
+        try {
+            const res = await fetch('/api/auth/forgot-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email }),
+                credentials: 'include'
+            });
+            const data = await res.json();
+            if (data.resetToken) {
+                alert('Reset token (dev only): ' + data.resetToken + '\nUse Reset Password form with this token.');
+            } else {
+                alert(data.message || 'If an account exists, a reset link would be sent.');
+            }
+        } catch (e) {
+            alert('Request failed. Try again.');
+        }
+    }
+
+    function applyTheme(theme) {
+        localStorage.setItem('vantage_theme', theme);
+        document.body.classList.remove('light-theme');
+        
+        if(theme === 'light') {
+            document.body.classList.add('light-theme');
+            document.getElementById('themeDisplay').innerText = 'LIGHT';
+        } else if(theme === 'system') {
+            if(window.matchMedia('(prefers-color-scheme: light)').matches) {
+                document.body.classList.add('light-theme');
+            }
+            document.getElementById('themeDisplay').innerText = 'SYSTEM';
+        } else {
+            document.getElementById('themeDisplay').innerText = 'DARK';
+        }
+    }
+
+    function handleAuth() { triggerScan(); setTimeout(() => document.getElementById('authOverlay').style.display='none', 1000); }
+    
+    function triggerScan() {
+        const line = document.getElementById('scanEffect');
+        line.classList.add('scan-active');
+        setTimeout(() => line.classList.remove('scan-active'), 2000);
+    }
+
+    function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+    
+    function saveSettings() {
+        const name = document.getElementById('userName').value;
+        localStorage.setItem('vantage_user_name', name);
+        triggerScan();
+        closeModal('settingsModal');
+    }
+
+    function clearMemory() {
+        if(confirm("Permanent deletion of all neural threads. Proceed?")) {
+            localStorage.clear();
+            location.reload();
+        }
+    }
+
+    function sendMessage() {
+        const input = document.getElementById('userInput');
+        const val = input.value.trim();
+        if(!val) return;
+        document.getElementById('welcome')?.remove();
+        renderMessage('user', val);
+        setTimeout(() => renderMessage('aura', "Neural update complete. System parameters optimized."), 800);
+        input.value = "";
+    }
+
+    function renderMessage(role, content) {
+        const chatbox = document.getElementById('chatbox');
+        const div = document.createElement('div');
+        div.className = `msg ${role}-msg`;
+        div.innerHTML = role === 'aura' ? `<strong>AURA:</strong> ${content}` : content;
+        chatbox.appendChild(div);
+        chatbox.scrollTop = chatbox.scrollHeight;
+    }
+
+    // Particle Logic
+    const canvas = document.getElementById('neuralCanvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    function initParticles() {
+        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+        for(let i=0; i<50; i++) particles.push({x:Math.random()*canvas.width, y:Math.random()*canvas.height, vx:(Math.random()-0.5)*0.5, vy:(Math.random()-0.5)*0.5});
+    }
+    function animateParticles() {
+        ctx.clearRect(0,0,canvas.width, canvas.height);
+        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--accent');
+        particles.forEach(p => {
+            p.x += p.vx; p.y += p.vy;
+            if(p.x<0 || p.x>canvas.width) p.vx*=-1; if(p.y<0 || p.y>canvas.height) p.vy*=-1;
+            ctx.beginPath(); ctx.arc(p.x, p.y, 1, 0, Math.PI*2); ctx.fill();
+        });
+        requestAnimationFrame(animateParticles);
+    }
+    // ---------- AUTH: Logout (clear session cookie and reload) ----------
+    async function logout() {
+        try {
+            await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+        } catch (_) {}
+        currentUser = null;
+        location.reload();
+    }
+</script>
+</body>
+</html>

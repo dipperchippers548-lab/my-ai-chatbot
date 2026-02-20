@@ -1,0 +1,377 @@
+* {
+    box-sizing: border-box;
+}
+
+:root {
+    color-scheme: dark;
+    --bg: #111214;
+    --surface: #181a1f;
+    --surface-soft: #1f2229;
+    --text: #eceef3;
+    --muted: #9aa3b5;
+    --border: #2a2e37;
+    --accent: #10a37f;
+    --accent-hover: #0f8f70;
+    --danger: #f87171;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
+    background: radial-gradient(circle at top, #1b1f28, #111214 45%);
+    color: var(--text);
+}
+
+.account-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+}
+
+.account-card {
+    width: 100%;
+    max-width: 860px;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: var(--surface);
+    overflow: hidden;
+}
+
+.account-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 20px;
+    border-bottom: 1px solid var(--border);
+}
+
+.account-header h1 {
+    margin: 0;
+    font-size: 22px;
+}
+
+.back-link {
+    color: var(--muted);
+    text-decoration: none;
+}
+
+.back-link:hover {
+    color: var(--text);
+}
+
+.account-section {
+    padding: 18px 20px;
+    border-bottom: 1px solid var(--border);
+}
+
+.account-section:last-child {
+    border-bottom: none;
+}
+
+.account-section h2 {
+    margin: 0 0 8px;
+    font-size: 16px;
+}
+
+.settings-layout {
+    display: grid;
+    grid-template-columns: 190px 1fr;
+    min-height: 460px;
+}
+
+.settings-sidebar {
+    border-right: 1px solid var(--border);
+    background: #161921;
+}
+
+.settings-content {
+    min-width: 0;
+}
+
+.settings-tabs {
+    display: grid;
+    gap: 8px;
+    padding: 14px;
+}
+
+.settings-tab {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: transparent;
+    color: var(--muted);
+    text-align: left;
+    padding: 8px 10px;
+    font-size: 13px;
+    cursor: pointer;
+    margin-top: 0;
+}
+
+.settings-tab:hover {
+    background: var(--surface-soft);
+    color: var(--text);
+}
+
+.settings-tab.active {
+    border-color: #3a846f;
+    color: #b4f0de;
+    background: rgba(16, 163, 127, 0.14);
+}
+
+.settings-panel {
+    display: none;
+}
+
+.settings-panel.active {
+    display: block;
+}
+
+.settings-content .account-section {
+    border-bottom: 1px solid var(--border);
+}
+
+.settings-content .account-section:last-child {
+    border-bottom: none;
+}
+
+.muted {
+    margin: 0 0 14px;
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.form {
+    display: grid;
+    gap: 8px;
+}
+
+label {
+    font-size: 13px;
+    color: var(--muted);
+}
+
+input {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: #12151b;
+    color: var(--text);
+    padding: 10px 12px;
+    font-size: 14px;
+}
+
+input:disabled {
+    opacity: 0.75;
+}
+
+select {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: #12151b;
+    color: var(--text);
+    padding: 10px 12px;
+    font-size: 14px;
+}
+
+input[type="checkbox"] {
+    width: auto;
+    transform: scale(1.1);
+}
+
+textarea {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: #12151b;
+    color: var(--text);
+    padding: 10px 12px;
+    font-size: 14px;
+    resize: vertical;
+    min-height: 90px;
+}
+
+button {
+    border: 1px solid var(--accent);
+    border-radius: 10px;
+    background: var(--accent);
+    color: white;
+    padding: 10px 12px;
+    cursor: pointer;
+    margin-top: 6px;
+    font-size: 14px;
+}
+
+button:hover {
+    background: var(--accent-hover);
+}
+
+button.secondary {
+    background: transparent;
+    border-color: var(--border);
+    color: var(--text);
+}
+
+button.secondary:hover {
+    background: var(--surface-soft);
+}
+
+.danger h2 {
+    color: var(--danger);
+}
+
+.security-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.inline-link {
+    color: #9bd4c4;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.inline-link:hover {
+    text-decoration: underline;
+}
+
+.app-list {
+    display: grid;
+    gap: 12px;
+}
+
+.app-row {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    background: #141821;
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: center;
+}
+
+.mini {
+    margin: 4px 0 0;
+    font-size: 12px;
+}
+
+.row-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.data-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 860px) {
+    .settings-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .settings-sidebar {
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        background: transparent;
+    }
+
+    .settings-tabs {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .settings-tab {
+        text-align: center;
+    }
+}
+
+.plan-pill {
+    display: inline-block;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 4px 10px;
+    font-size: 12px;
+    margin-bottom: 10px;
+    background: var(--surface-soft);
+}
+
+.feature-list {
+    margin: 0;
+    padding-left: 18px;
+    color: var(--muted);
+}
+
+.feature-list li {
+    margin: 4px 0;
+}
+
+.notification {
+    position: fixed;
+    bottom: 16px;
+    right: 16px;
+    border: 1px solid var(--border);
+    background: #29303a;
+    color: var(--text);
+    padding: 10px 12px;
+    border-radius: 10px;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: all 0.2s ease;
+}
+
+.notification.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.notification.success {
+    border-color: #2f7b64;
+}
+
+.notification.error {
+    border-color: #874848;
+}
+
+.confirm-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(8, 10, 14, 0.65);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1200;
+}
+
+.confirm-dialog {
+    width: min(92vw, 420px);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: var(--surface);
+    box-shadow: 0 18px 36px rgba(0, 0, 0, 0.38);
+    padding: 16px;
+}
+
+.confirm-dialog h3 {
+    margin: 0 0 8px;
+    font-size: 18px;
+}
+
+.confirm-dialog p {
+    margin: 0 0 14px;
+    color: var(--muted);
+    line-height: 1.45;
+}
+
+.confirm-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}

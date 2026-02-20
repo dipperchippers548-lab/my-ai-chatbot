@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - VANTAGE 4o</title>
+    <link rel="stylesheet" href="styles/account.css">
+</head>
+<body>
+    <main class="account-page">
+        <div class="account-card">
+            <header class="account-header">
+                <h1>Settings</h1>
+                <a href="/" class="back-link">Back to chat</a>
+            </header>
+
+            <div class="settings-layout">
+                <aside class="settings-sidebar">
+                    <div class="settings-tabs" role="tablist" aria-label="Settings tabs">
+                        <button class="settings-tab active" id="tabGeneral" data-tab="general" role="tab" aria-controls="panelGeneral" aria-selected="true">General</button>
+                        <button class="settings-tab" id="tabNotifications" data-tab="notifications" role="tab" aria-controls="panelNotifications" aria-selected="false">Notifications</button>
+                        <button class="settings-tab" id="tabPersonalization" data-tab="personalization" role="tab" aria-controls="panelPersonalization" aria-selected="false">Personalization</button>
+                        <button class="settings-tab" id="tabApps" data-tab="apps" role="tab" aria-controls="panelApps" aria-selected="false">Apps</button>
+                        <button class="settings-tab" id="tabData" data-tab="data" role="tab" aria-controls="panelData" aria-selected="false">Data controls</button>
+                        <button class="settings-tab" id="tabAccount" data-tab="account" role="tab" aria-controls="panelAccount" aria-selected="false">Account</button>
+                        <button class="settings-tab" id="tabSecurity" data-tab="security" role="tab" aria-controls="panelSecurity" aria-selected="false">Security</button>
+                    </div>
+                </aside>
+                <div class="settings-content">
+                    <section class="account-section settings-panel active" id="panelGeneral" role="tabpanel" aria-labelledby="tabGeneral">
+                        <h2>General</h2>
+                        <p class="muted">Basic experience preferences for this browser.</p>
+                        <form id="generalForm" class="form">
+                            <label for="themePreference">Theme</label>
+                            <select id="themePreference" name="themePreference">
+                                <option value="dark">Dark</option>
+                                <option value="light">Light</option>
+                                <option value="system">System</option>
+                            </select>
+
+                            <label for="enterToSend">Enter sends message</label>
+                            <input id="enterToSend" name="enterToSend" type="checkbox">
+
+                            <label for="memoryEnabled">Memory enabled</label>
+                            <input id="memoryEnabled" name="memoryEnabled" type="checkbox">
+
+                            <label for="memoryProfile">Memory notes</label>
+                            <textarea id="memoryProfile" name="memoryProfile" rows="4" placeholder="Example: I prefer short answers. I build React SaaS apps."></textarea>
+
+                            <button type="submit" id="saveGeneralBtn">Save general settings</button>
+                        </form>
+                    </section>
+
+                    <section class="account-section settings-panel" id="panelNotifications" role="tabpanel" aria-labelledby="tabNotifications">
+                        <h2>Notifications</h2>
+                        <p class="muted">Control how VANTAGE notifies you in this browser.</p>
+                        <form id="notificationsForm" class="form">
+                            <label for="notifyDesktop">Desktop notifications</label>
+                            <input id="notifyDesktop" name="notifyDesktop" type="checkbox">
+
+                            <label for="notifySound">Play notification sounds</label>
+                            <input id="notifySound" name="notifySound" type="checkbox">
+
+                            <label for="notifyTips">Show daily tips on home screen</label>
+                            <input id="notifyTips" name="notifyTips" type="checkbox">
+
+                            <button type="submit" id="saveNotificationsBtn">Save notification settings</button>
+                        </form>
+                    </section>
+
+                    <section class="account-section settings-panel" id="panelPersonalization" role="tabpanel" aria-labelledby="tabPersonalization">
+                        <h2>Personalization</h2>
+                        <p class="muted">Tune how the assistant responds to you.</p>
+                        <form id="personalizationForm" class="form">
+                            <label for="responseStyle">Response style</label>
+                            <select id="responseStyle" name="responseStyle">
+                                <option value="short">Short</option>
+                                <option value="balanced">Balanced</option>
+                                <option value="detailed">Detailed</option>
+                            </select>
+
+                            <label for="adaptiveStudyMode">Adaptive study mode</label>
+                            <input id="adaptiveStudyMode" name="adaptiveStudyMode" type="checkbox">
+
+                            <label for="mirrorEnergy">Mirror my chat energy (4o/PRO)</label>
+                            <input id="mirrorEnergy" name="mirrorEnergy" type="checkbox">
+
+                            <button type="submit" id="savePersonalizationBtn">Save personalization settings</button>
+                        </form>
+                    </section>
+
+                    <section class="account-section settings-panel" id="panelApps" role="tabpanel" aria-labelledby="tabApps">
+                        <h2>Apps</h2>
+                        <p class="muted">Quick links for connected features and integrations.</p>
+                        <div class="app-list">
+                            <div class="app-row">
+                                <div>
+                                    <strong>Billing & Plans</strong>
+                                    <p class="muted mini">Open pricing and billing management.</p>
+                                </div>
+                                <div class="row-actions">
+                                    <a class="inline-link" href="pricing.html">Pricing</a>
+                                    <a class="inline-link" href="billing.html">Billing</a>
+                                </div>
+                            </div>
+                            <div class="app-row">
+                                <div>
+                                    <strong>Sign-in methods</strong>
+                                    <p class="muted mini">Google and Microsoft login are enabled in auth flow.</p>
+                                </div>
+                                <div class="row-actions">
+                                    <a class="inline-link" href="login.html">Manage sign-in</a>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="account-section settings-panel" id="panelData" role="tabpanel" aria-labelledby="tabData">
+                        <h2>Data controls</h2>
+                        <p class="muted">Export local preferences or clear browser/app data.</p>
+                        <div class="data-actions">
+                            <button id="exportPrefsBtn" class="secondary" type="button">Export preferences</button>
+                            <button id="resetPrefsBtn" class="secondary" type="button">Reset preferences</button>
+                            <button id="clearChatsBtn" class="secondary" type="button">Delete all chats</button>
+                        </div>
+                    </section>
+
+                    <section class="account-section settings-panel" id="panelAccount" role="tabpanel" aria-labelledby="tabAccount">
+                        <h2>Account</h2>
+                        <p class="muted">Update how your name appears in chat history and sidebar.</p>
+                        <form id="profileForm" class="form">
+                            <label for="displayName">Display name</label>
+                            <input id="displayName" name="displayName" type="text" maxlength="60" required>
+
+                            <label for="email">Email</label>
+                            <input id="email" name="email" type="email" disabled>
+
+                            <button type="submit" id="saveProfileBtn">Save account changes</button>
+                        </form>
+                    </section>
+
+                    <section class="account-section settings-panel danger" id="panelSecurity" role="tabpanel" aria-labelledby="tabSecurity">
+                        <h2>Security</h2>
+                        <p class="muted">Session and password access controls.</p>
+                        <div class="security-actions">
+                            <button id="sendResetBtn" class="secondary" type="button" onclick="sendResetFromSettings()">Send password reset email</button>
+                            <button id="openResetBtn" class="secondary" type="button" onclick="openResetFromSettings()">Open reset page</button>
+                            <button id="logoutBtn" class="secondary" type="button">Log out</button>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="notification" class="notification"></div>
+
+    <div id="confirmOverlay" class="confirm-overlay" style="display:none;" aria-hidden="true">
+        <div class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+            <h3 id="confirmTitle">Please confirm</h3>
+            <p id="confirmMessage">Are you sure?</p>
+            <div class="confirm-actions">
+                <button id="confirmCancelBtn" class="secondary" type="button">Cancel</button>
+                <button id="confirmOkBtn" type="button">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/account.js"></script>
+</body>
+</html>
